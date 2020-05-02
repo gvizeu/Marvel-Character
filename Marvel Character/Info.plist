@@ -60,5 +60,26 @@
 		<string>UIInterfaceOrientationLandscapeLeft</string>
 		<string>UIInterfaceOrientationLandscapeRight</string>
 	</array>
+	<key>MARVEL_PRIVATE_KEY</key>
+	<string>8ce6cb5665c689f0dfe8e8c69714342d6288d1b1</string>
+	<key>MARVEL_PUBLIC_KEY</key>
+	<string>746e553c4a910f316c3ff536dfb0b9f9</string>
+	<key>MARVEL_ROOT_URL</key>
+	<string>http://gateway.marvel.com/v1/public</string>
+	<key>NSAppTransportSecurity</key>
+	<dict>
+		<key>NSAllowsArbitraryLoads</key>
+		<true/>
+		<key>NSExceptionDomains</key>
+		<dict>
+			<key>developer.marvel.com</key>
+			<dict>
+				<key>NSIncludesSubdomains</key>
+				<true/>
+				<key>NSThirdPartyExceptionRequiresForwardSecrecy</key>
+				<false/>
+			</dict>
+		</dict>
+	</dict>
 </dict>
 </plist>

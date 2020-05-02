@@ -1,0 +1,16 @@
+/* 
+  Localizable.strings
+  Marvel Character
+
+  Created by Gonzalo Vizeu on 02/05/2020.
+  Copyright © 2020 Gonzalo Vizeu. All rights reserved.
+*/
+
+// MARK: error
+"error.titleOKButton" = "OK";
+"error.imageNil" = "Data is nil. I don't know what to do 🤨";
+"error.unknown" = "Unknown error";
+"error.noCharacters" = "No characters found";
+
+"characterDetail.storiesTitle" = "Stories";
+"characterDetail.comicsTitle" = "Comics";
