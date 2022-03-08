@@ -15,13 +15,11 @@ protocol UIImageViewCustomDataSoruce  {
 
 extension UIImageView {
     
-    
-    
-    func getImage(from link: String, fileExtension: String, rounded: CGFloat? = 0, delegate: UIImageViewCustomDataSoruce? = nil){
-        
-        guard var url: URL = URL(string: link) else { return }
-        url.appendPathExtension(fileExtension)
-        APIMarvel.shared.requestImage(from: url) { (image) in
+    func getImage(from url: URL?, rounded: CGFloat? = 0, delegate: UIImageViewCustomDataSoruce? = nil){
+        guard let url = url else {
+            return
+        }
+        APIMarvel().requestImage(from: url) { (image) in
             var img = image
             self.layer.masksToBounds = false
                        self.clipsToBounds = true
@@ -29,7 +27,6 @@ extension UIImageView {
             if rounded ?? 0 > 0 {
                 img = img?.af.imageRounded(withCornerRadius: rounded!)
             }
-           
            
             self.image = img
             delegate?.didSetImage(imgeView: self)

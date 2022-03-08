@@ -24,6 +24,7 @@ enum AppError: Error {
     case message(String)
     case generic
     case malformedData
+    case unknown
     
     public var errorDescription: String? {
         switch self {

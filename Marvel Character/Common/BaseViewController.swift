@@ -8,12 +8,10 @@
 
 import UIKit
 
-public class BaseViewController: UIViewController {
+class BaseViewController: UIViewController {
 
     public override func viewDidLoad() {
         super.viewDidLoad()
-
-        // Do any additional setup after loading the view.
     }
     
     func showTableViewLoader(tableView: UITableView){
@@ -29,13 +27,9 @@ public class BaseViewController: UIViewController {
         tableView.tableFooterView?.isHidden = true
     }
     
-    func showLoader(){
-        
-    }
+    func showLoader(){}
     
-    func hideLoader(){
-        
-    }
+    func hideLoader(){}
     
     func presentError(title: String?, message: String?) {
         
@@ -43,6 +37,4 @@ public class BaseViewController: UIViewController {
         alert.addAction(UIAlertAction(title: "OK", style: .cancel, handler: nil))
         self.present(alert, animated: true)
     }
-    
-
 }

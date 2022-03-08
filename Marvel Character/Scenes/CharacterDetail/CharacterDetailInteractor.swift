@@ -8,26 +8,40 @@
 
 import Foundation
 
-protocol CharacterDetailBusinessLogic: class {
+protocol CharacterDetailBusinessLogic: AnyObject {
     func getDetail(from id: Int)
 }
 
 class CharacterDetailInteractor: CharacterDetailBusinessLogic {
     
-    var presenter: CharacterDetailPresentationLogic?
-    var worker: CharacterDetailWorkerDelegate?
+    weak var presenter: CharacterDetailPresentationLogic?
+    fileprivate let session: CharacterRepository
+    
+    init(session: CharacterRepository) {
+        self.session = session
+    }
     
     func getDetail(from id: Int) {
-        self.worker?.getCharacterDetail(id: id, completionHandler: { (characterdetails,error)  in
+        session.getCharacterDetail(id: id) { result in
+            switch result {
+            case .success(let characterDTO):
+                let stories: [Storie]? = characterDTO.stories?.items?.map({Storie(title: $0.name ?? "")})
+                let comics: [Comic]? = characterDTO.comics?.items?.map({Comic(title: $0.name ?? "")})
             
-            if let details = characterdetails?.data?.results?.first{
-                self.presenter?.didGetCharacterDetail(detail: details)
-            } else if let er = error {
-                self.presenter?.couldntGetDetails(title: String((er as NSError).code), msg: er.localizedDescription)
+                let character = Character(id: characterDTO.id,
+                                          name: characterDTO.name,
+                                          imagePath: characterDTO.thumbnail?.path,
+                                          imageExtension: characterDTO.thumbnail?.thumbnailExtension,
+                                          stories: stories,
+                                          comics: comics)
+                
+                self.presenter?.didGetCharacterDetail(detail: character)
+                    
+            case .failure(let error):
+                self.presenter?.couldntGetDetails(title: String((error as NSError).code), msg: error.localizedDescription)
             }
-            
-           
-        })
+        }
+
     }
     
 }

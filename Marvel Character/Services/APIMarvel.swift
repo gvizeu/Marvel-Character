@@ -13,10 +13,7 @@ import var CommonCrypto.CC_MD5_DIGEST_LENGTH
 import func CommonCrypto.CC_MD5
 import typealias CommonCrypto.CC_LONG
 
-class APIMarvel {
-    
-    
-    static let shared = APIMarvel()
+final class APIMarvel: API {
     
     lazy var sessionManager: Session = {
         let configuration = URLSessionConfiguration.default
@@ -26,10 +23,9 @@ class APIMarvel {
         return Session(configuration: configuration)
     }()
     
-    let imageCache = AutoPurgingImageCache( memoryCapacity: 111_111_111, preferredMemoryUsageAfterPurge: 90_000_000)
-    
+    private let imageCache = AutoPurgingImageCache( memoryCapacity: 111_111_111, preferredMemoryUsageAfterPurge: 90_000_000)
 
-    func requestObject<T: Decodable>(from route: MarvelAPIRouter, keyPath: String? = nil, decoder: JSONDecoder = JSONDecoder(), completion: (@escaping (_: Result<T, Error>) -> Void)) {
+    func requestObject<T: Decodable>(from route: MarvelAPIRouter, completion: @escaping ((Result<T, NetworkError>) -> Void)) {
         sessionManager.request(route).responseDecodable(of: T.self) { response in
           
             guard let resp = response.response,
@@ -39,39 +35,20 @@ class APIMarvel {
                         let decodedData = try? JSONDecoder().decode(GenericError.self, from: data)
                         
                         if let errorMessage = decodedData?.status {
-                            completion(.failure(NSError(domain: "", code: decodedData?.code ?? 0, userInfo: [NSLocalizedDescriptionKey: errorMessage])))
+                            completion(.failure(.generic(code: decodedData?.code, description: errorMessage)))
                             return
                         }
-                    }
-                    
-                    guard let error = response.error else {
-                        completion(.failure(AppError.generic))
+                    } else {
+                        completion(.failure(.generic(code: response.response?.statusCode, description: response.response?.description)))
                         return
                     }
-                    
-                    completion(.failure(error.localizedDescription.isEmpty ? AppError.generic: error))
-                    
                     return
             }
-            
             switch response.result {
             case .failure(let error):
-                completion(Result.failure(error))
+                completion(Result.failure(.generic(code: error.responseCode, description: error.errorDescription)))
             case .success(let value):
                 completion(Result.success(value))
-            }
-        }
-    }
-    
-    func requestImage(url: URL, completion: (@escaping (UIImage?) -> Void)){
-        
-        sessionManager.request(url).response { response in
-            if let data = response.data {
-                let image = UIImage(data: data)
-                completion(image)
-            } else {
-                print("error.imageNil".localize)
-                completion(nil)
             }
         }
     }

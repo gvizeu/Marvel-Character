@@ -8,16 +8,19 @@
 
 import Foundation
 
-protocol CharacterDetailPresentationLogic: class {
-    func didGetCharacterDetail(detail: CharactersList.DataRawValue)
+protocol CharacterDetailPresentationLogic: AnyObject {
+    func fetchData(from id: Int)
+    func didGetCharacterDetail(detail: Character)
     func couldntGetDetails(title: String?, msg: String?)
 }
 
 class CharacterDetailPresenter: CharacterDetailPresentationLogic {
     
-    var viewController: CharacterDetailDisplayLogic?
+    weak var viewController: CharacterDetailDisplayLogic?
+    var interactor: CharacterDetailBusinessLogic?
+    var router: CharaterDetailRouterDelegate?
     
-    func didGetCharacterDetail(detail: CharactersList.DataRawValue){
+    func didGetCharacterDetail(detail: Character){
         self.viewController?.displayDetails(detail)
         self.viewController?.displayStories(stories: detail.stories)
         self.viewController?.displayComics(comics: detail.comics)
@@ -25,5 +28,9 @@ class CharacterDetailPresenter: CharacterDetailPresentationLogic {
     
     func couldntGetDetails(title: String?, msg: String?) {
         self.viewController?.displayError(title: title, msg: msg)
+    }
+    
+    func fetchData(from id: Int) {
+        self.interactor?.getDetail(from: id)
     }
 }

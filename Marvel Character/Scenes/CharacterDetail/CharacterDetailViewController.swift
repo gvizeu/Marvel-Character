@@ -8,14 +8,14 @@
 
 import UIKit
 
-protocol CharacterDetailDisplayLogic: class{
-    func displayDetails(_ detailModel: CharactersList.DataRawValue)
-    func displayStories(stories: CharactersList.Stories?)
-    func displayComics(comics: CharactersList.Comics?)
+protocol CharacterDetailDisplayLogic: AnyObject {
+    func displayDetails(_ detailModel: Character)
+    func displayStories(stories: [Storie]?)
+    func displayComics(comics: [Comic]?)
     func displayError(title: String?, msg: String?)
 }
 
-class CharacterDetailViewController: BaseViewController, CharacterDetailDisplayLogic {
+final class CharacterDetailViewController: BaseViewController, CharacterDetailDisplayLogic {
     
     @IBOutlet weak var nameLabel: UILabel!
     @IBOutlet weak var characterImage: UIImageView!
@@ -24,73 +24,40 @@ class CharacterDetailViewController: BaseViewController, CharacterDetailDisplayL
     @IBOutlet weak var storiesTitle: UILabel!
     @IBOutlet weak var storiesStackView: UIStackView!
     
-    
-    
-    var interactor: CharacterDetailBusinessLogic?
     var identifier: Int?
-    var detailModel: CharactersList.DataRawValue?
+    var detailModel: Character?
+    var presenter: CharacterDetailPresentationLogic?
     
-    static func makeCharacterDetailView(id: Int?) -> CharacterDetailViewController{
-        let newViewController = UIStoryboard(name: "Main", bundle: nil).instantiateViewController(withIdentifier: "CharacterDetailViewController") as! CharacterDetailViewController
-        newViewController.identifier = id
-        return newViewController
-    }
-    
-    override init(nibName nibNameOrNil: String?, bundle nibBundleOrNil: Bundle?) {
-        super.init(nibName: nibNameOrNil, bundle: nibBundleOrNil)
-        setup()
-    }
-    
-    required init?(coder: NSCoder) {
-        super.init(coder: coder)
-        setup()
-    }
-
     override func viewDidLoad() {
         super.viewDidLoad()
         
-        self.getData()
-
-        
-    }
-    
-    private func setup(){
-        let viewController = self
-        let interactor = CharacterDetailInteractor()
-        let presenter = CharacterDetailPresenter()
-        let worker = CharacterDetailWorker()
-        viewController.interactor = interactor
-        interactor.presenter = presenter
-        interactor.worker = worker
-        presenter.viewController = viewController
-        
-    }
-    
-    func getData(){
         guard let id = self.identifier else {  return }
-        self.interactor?.getDetail(from: id)
+        self.presenter?.fetchData(from: id)
     }
     
-    func displayDetails(_ detailModel: CharactersList.DataRawValue) {
+    override func viewDidAppear(_ animated: Bool) {
+        super.viewDidAppear(animated)
+    }
+    
+    func displayDetails(_ detailModel: Character) {
         self.detailModel = detailModel
-        let image = detailModel.thumbnail
-        self.characterImage.getImage(from: image?.path ?? "", fileExtension: image?.thumbnailExtension ?? "", rounded: 25, delegate: self)
-
+        let image = detailModel.imagePath
+        self.characterImage.getImage(from: image, rounded: 25, delegate: self)
         self.nameLabel.text = detailModel.name
     }
     
-    func displayStories(stories: CharactersList.Stories?) {
+    func displayStories(stories: [Storie]?) {
         self.storiesTitle.text = "characterDetail.storiesTitle".localize
-        stories?.items?.forEach({ (story) in
-            self.storiesStackView.addArrangedSubview(createUILabel(with: story.name))
+        stories?.forEach({ (story) in
+            self.storiesStackView.addArrangedSubview(createUILabel(with: story.title))
         })
         
     }
     
-    func displayComics(comics: CharactersList.Comics?) {
+    func displayComics(comics: [Comic]?) {
         self.comicsTitle.text = "characterDetail.comicsTitle".localize
-        comics?.items?.forEach({ (comic) in
-            self.comicsStackView.addArrangedSubview(createUILabel(with: comic.name))
+        comics?.forEach({ (comic) in
+            self.comicsStackView.addArrangedSubview(createUILabel(with: comic.title))
         })
     }
     
@@ -106,8 +73,6 @@ class CharacterDetailViewController: BaseViewController, CharacterDetailDisplayL
         label.numberOfLines = 0
         return label
     }
-    
-
 }
 
 extension CharacterDetailViewController: UIImageViewCustomDataSoruce {
